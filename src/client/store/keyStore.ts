@@ -1,5 +1,4 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
 import type { ApiKeys } from '@shared/types';
 
 // 内置测试密钥
@@ -20,29 +19,22 @@ interface KeyStoreState {
   getXingyunAppSecret: () => string;
 }
 
-export const useKeyStore = create<KeyStoreState>()(
-  persist(
-    (set, get) => ({
-      apiKeys: null,
-      isUsingDefault: false,
+export const useKeyStore = create<KeyStoreState>()((set, get) => ({
+  apiKeys: null,
+  isUsingDefault: false,
 
-      setApiKeys: (keys, isDefault = false) =>
-        set({ apiKeys: keys, isUsingDefault: isDefault }),
+  setApiKeys: (keys, isDefault = false) =>
+    set({ apiKeys: keys, isUsingDefault: isDefault }),
 
-      clearApiKeys: () =>
-        set({ apiKeys: null, isUsingDefault: false }),
+  clearApiKeys: () =>
+    set({ apiKeys: null, isUsingDefault: false }),
 
-      hasKeys: () => {
-        const keys = get().apiKeys;
-        return !!keys && !!keys.modelscopeApiKey && !!keys.xingyunAppId && !!keys.xingyunAppSecret;
-      },
+  hasKeys: () => {
+    const keys = get().apiKeys;
+    return !!keys && !!keys.modelscopeApiKey && !!keys.xingyunAppId && !!keys.xingyunAppSecret;
+  },
 
-      getModelScopeKey: () => get().apiKeys?.modelscopeApiKey || DEFAULT_KEYS.modelscopeApiKey,
-      getXingyunAppId: () => get().apiKeys?.xingyunAppId || DEFAULT_KEYS.xingyunAppId,
-      getXingyunAppSecret: () => get().apiKeys?.xingyunAppSecret || DEFAULT_KEYS.xingyunAppSecret,
-    }),
-    {
-      name: 'enterprise-assistant-keys',
-    }
-  )
-);
+  getModelScopeKey: () => get().apiKeys?.modelscopeApiKey || DEFAULT_KEYS.modelscopeApiKey,
+  getXingyunAppId: () => get().apiKeys?.xingyunAppId || DEFAULT_KEYS.xingyunAppId,
+  getXingyunAppSecret: () => get().apiKeys?.xingyunAppSecret || DEFAULT_KEYS.xingyunAppSecret,
+}));

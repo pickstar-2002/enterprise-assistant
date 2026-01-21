@@ -7,7 +7,6 @@ import {
   uploadKnowledgeFile,
   deleteKnowledgeDocument,
   initializeBuiltinKnowledge,
-  getKnowledgeStats,
   type KnowledgeDocument,
   type KnowledgeListResponse,
 } from '../services/knowledgeService';
@@ -90,6 +89,7 @@ export const useKnowledgeStore = create<KnowledgeStoreState>((set, get) => ({
 
       // 重新获取文档列表
       await get().fetchDocuments();
+      void result; // 避免未使用警告
 
       set({
         isUploading: false,

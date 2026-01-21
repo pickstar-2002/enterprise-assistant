@@ -43,7 +43,7 @@ export class AvatarController {
   private initError: Error | null = null;
   private containerIdWithHash: string;
 
-  constructor(private containerId: string) {
+  constructor(containerId: string) {
     // 官方文档要求 containerId 必须带 # 前缀
     this.containerIdWithHash = containerId.startsWith('#') ? containerId : `#${containerId}`;
   }
@@ -103,6 +103,10 @@ export class AvatarController {
         },
         enableLogger: true, // 开启日志便于调试
       });
+
+      if (!this.sdk) {
+        throw new Error('SDK 初始化失败');
+      }
 
       await this.sdk.init({
         onDownloadProgress: (progress) => {

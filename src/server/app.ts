@@ -134,24 +134,14 @@ async function autoInitBuiltinKnowledge() {
 
 // Setup frontend serving
 async function setupFrontend() {
-  if (isDev) {
-    // Development: Use Vite's middleware mode
-    const vite = await import('vite');
-    const viteDevServer = await vite.createServer({
-      root: path.join(__dirname, '../..'),
-      server: { middlewareMode: true },
-      appType: 'spa',
-    });
-    app.use(viteDevServer.middlewares);
-  } else {
-    // Production: Serve pre-built static files
-    app.use(express.static(path.join(__dirname, '../../dist/public')));
+  // 无论是开发还是生产环境，都使用构建后的静态文件
+  // 这样可以完全避免 Vite HMR 的问题
+  app.use(express.static(path.join(__dirname, '../../dist/public')));
 
-    // SPA fallback: return index.html for all non-API routes
-    app.get('*', (_req: Request, res: Response) => {
-      res.sendFile(path.join(__dirname, '../../dist/public/index.html'));
-    });
-  }
+  // SPA fallback: return index.html for all non-API routes
+  app.get('*', (_req: Request, res: Response) => {
+    res.sendFile(path.join(__dirname, '../../dist/public/index.html'));
+  });
 }
 
 // Error handler (must be after all routes and middleware)

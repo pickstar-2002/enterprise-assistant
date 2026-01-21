@@ -12,13 +12,8 @@ export default defineConfig({
   server: {
     // 开发模式下不使用独立端口，使用中间件模式
     // 这样 Express 可以统一处理所有请求
-    hmr: {
-      overlay: true,
-    },
-    watch: {
-      // 忽略 node_modules 避免频繁触发
-      ignored: ['**/node_modules/**', '**/dist/**'],
-    },
+    hmr: false, // 完全禁用 HMR
+    watch: null, // 完全禁用文件监听
   },
   build: {
     outDir: 'dist/public',

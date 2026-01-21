@@ -42,7 +42,8 @@ function AvatarContainer({ controllerRef }: AvatarContainerProps, ref: React.Ref
     if (controllerRef && typeof controllerRef === 'object') {
       (controllerRef as any).current = localControllerRef.current;
     }
-  }, [controllerRef, localControllerRef.current]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [localControllerRef.current]); // 只依赖 localControllerRef.current
 
   useEffect(() => {
     // Check if SDK is already loaded
@@ -346,13 +347,13 @@ function AvatarContainer({ controllerRef }: AvatarContainerProps, ref: React.Ref
       )}
 
       {/* Connection Controls */}
-      {state === 'offline' || state === 'error' ? (
+      {(state === 'offline' || state === 'error') ? (
         <button
           onClick={connect}
-          disabled={state === 'connecting' || !isSDKLoaded}
+          disabled={!isSDKLoaded}
           className="w-full py-2.5 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white rounded-lg font-medium transition-colors"
         >
-          {state === 'connecting' ? '连接中...' : '连接数字人'}
+          连接数字人
         </button>
       ) : (
         <button

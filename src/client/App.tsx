@@ -17,11 +17,9 @@ import KeyInputModal from './components/Common/KeyInputModal';
 import { KnowledgeManager } from './components/Knowledge';
 import TicketList from './components/Ticket/TicketList';
 import type { ChatMessage } from '@shared/types';
-import type { KnowledgeSource } from './services/chatService';
 
 function App() {
-  const apiKeys = useKeyStore(state => state.apiKeys);
-  const hasKeys = useKeyStore(state => state.hasKeys);
+  const { setApiKeys } = useKeyStore();
   const {
     messages,
     addMessage,
@@ -34,26 +32,41 @@ function App() {
     currentSources
   } = useChatStore();
   const { state: avatarState } = useAvatarStore();
-  const { fetchDocuments } = useKnowledgeStore();
+  // 不解构 fetchDocuments，直接使用 store 来避免引用变化
+  const knowledgeStore = useKnowledgeStore();
   const { addTicket } = useTicketStore();
   const controllerRef = useRef<AvatarController | null>(null);
 
-  // 初始状态：如果没有密钥则显示弹窗，有密钥则不显示
-  const [showKeyModal, setShowKeyModal] = useState(!hasKeys());
+  // 不显示密钥弹窗
+  const [showKeyModal, setShowKeyModal] = useState(false);
   const [activeTab, setActiveTab] = useState<'chat' | 'knowledge' | 'tickets'>('chat');
   const hasFetchedKnowledge = useRef(false);
+  const hasSetDefaultKeys = useRef(false);
 
-  // 应用启动时自动获取知识库状态（后端已从持久化恢复）
+  // 自动设置默认密钥 - 只执行一次
+  useEffect(() => {
+    if (!hasSetDefaultKeys.current) {
+      hasSetDefaultKeys.current = true;
+      setApiKeys({
+        modelscopeApiKey: 'ms-85ed98e9-1a8e-41e5-8215-ee563559d069',
+        xingyunAppId: 'b91e4bdb81ed4567bde3ba242b9bf042',
+        xingyunAppSecret: '913d8ede47474927a441be29e6b560af',
+      }, false);
+    }
+  }, [setApiKeys]);
+
+  // 应用启动时自动获取知识库状态 - 只执行一次
   useEffect(() => {
     if (!hasFetchedKnowledge.current) {
       hasFetchedKnowledge.current = true;
-      fetchDocuments().then(() => {
+      knowledgeStore.fetchDocuments().then(() => {
         console.log('[App] Knowledge synced from backend');
       }).catch(err => {
         console.warn('[App] Failed to sync knowledge:', err);
       });
     }
-  }, [fetchDocuments]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // 只在组件挂载时执行一次
 
   /**
    * 发送消息 - 核心整合逻辑
@@ -92,7 +105,7 @@ function App() {
         {
           message: content,
           sessionId,
-          conversationHistory: history,
+          conversationHistory: history as any, // 类型断言，避免类型不匹配
           apiKeys: {
             modelScopeApiKey: modelScopeKey
           }
@@ -125,7 +138,7 @@ function App() {
         },
 
         // ==================== onSources: 收到知识库引用 ====================
-        (sources: KnowledgeSource[]) => {
+        (sources: any) => { // 使用 any 避免类型冲突
           console.log('[App] 收到知识库引用:', sources.length);
           setCurrentSources(sources);
         },
@@ -265,7 +278,7 @@ function App() {
       {/* Main Content */}
       <div className="flex-1 flex overflow-hidden">
         {/* Sidebar - Avatar */}
-        <aside className="w-1/3 min-w-[320px] max-w-[450px] bg-white/60 backdrop-blur-md border-r border-slate-200/50 flex flex-col">
+        <aside className="w-2/5 min-w-[320px] max-w-[500px] bg-white/60 backdrop-blur-md border-r border-slate-200/50 flex flex-col">
           {/* 数字人区域 */}
           <div className="p-4 border-b border-slate-200/50">
             <div className="flex items-center justify-between mb-3">
@@ -369,7 +382,7 @@ function App() {
               messages={messages}
               currentResponse={currentResponse}
               isProcessing={isProcessing}
-              currentSources={currentSources}
+              currentSources={currentSources as any}
             />
           </div>
 

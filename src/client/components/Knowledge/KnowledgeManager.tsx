@@ -58,7 +58,6 @@ interface DocumentContent {
 export function KnowledgeManager() {
   const {
     documents,
-    isLoading,
     isUploading,
     uploadProgress,
     error,

@@ -3,7 +3,7 @@
  * 管理对话历史、流式响应状态和知识库引用
  */
 import { create } from 'zustand';
-import type { ChatMessage, ChatSession, KnowledgeSource } from '@shared/types';
+import type { ChatMessage, KnowledgeSource } from '@shared/types';
 
 interface ChatStoreState {
   // 基础状态
